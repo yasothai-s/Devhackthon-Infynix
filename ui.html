@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Autonomous Education Coach — DevHack 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060e1c;--panel:#0b1525;--panel2:#101d2e;--border:#1a3050;
+  --teal:#00d4b4;--blue:#3a8dff;--amber:#f5a623;--red:#ff4f6a;--green:#2ecc71;
+  --muted:#3d5a7a;--text:#b8d0ee;--white:#e8f2ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;}
+body{background:radial-gradient(ellipse 90% 60% at 5% 0%,#00d4b41a 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 95% 100%,#3a8dff18 0%,transparent 55%),var(--bg);}
+.dash{max-width:1400px;margin:0 auto;padding:22px 20px;}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.hdr-l{display:flex;align-items:center;gap:13px;}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,#00d4b4,#3a8dff);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px #00d4b440;flex-shrink:0;}
+.hdr h1{font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.3px;}
+.hdr p{font-size:11px;color:var(--muted);margin-top:2px;}
+.badges{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;border:1px solid;display:flex;align-items:center;gap:5px;}
+.b-teal{border-color:#00d4b450;background:#00d4b415;color:var(--teal);}
+.b-blue{border-color:#3a8dff50;background:#3a8dff15;color:var(--blue);}
+.b-amber{border-color:#f5a62350;background:#f5a62315;color:var(--amber);}
+.dot-pulse{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dp 1.4s infinite;}
+@keyframes dp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g2,.g3{grid-template-columns:1fr;}}
+
+/* PANEL */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:.6;}
+.p-blue::before{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.p-amber::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.p-green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.pt{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.ph{font-size:15px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.tag{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:700;letter-spacing:.4px;}
+.tg-t{background:#00d4b420;color:var(--teal);}
+.tg-b{background:#3a8dff20;color:var(--blue);}
+
+/* STAT CARD */
+.sc{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;}
+.sl{font-size:10px;color:var(--muted);font-weight:600;margin-bottom:3px;letter-spacing:.3px;}
+.sv{font-size:26px;font-weight:700;color:var(--white);font-family:'Space Mono',monospace;line-height:1.1;}
+.ss{font-size:10px;color:var(--muted);margin-top:4px;}
+.s-up{color:var(--green);}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:14px;}
+.tab{padding:5px 13px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;color:var(--muted);transition:all .2s;user-select:none;}
+.tab:hover{color:var(--text);}
+.tab.act{background:#00d4b418;border-color:#00d4b440;color:var(--teal);}
+.tab.act-b{background:#3a8dff18;border-color:#3a8dff40;color:var(--blue);}
+
+/* PROGRESS */
+.pr-row{margin-bottom:11px;}
+.pr-lbl{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;}
+.pr-trk{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden;}
+.pr-fill{height:100%;border-radius:99px;transition:width 1.3s cubic-bezier(.4,0,.2,1);}
+
+/* QUIZ */
+.qcard{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:16px;}
+.qtext{font-size:13px;color:var(--white);margin-bottom:13px;font-weight:600;line-height:1.6;}
+.qopts{display:flex;flex-direction:column;gap:7px;}
+.qopt{padding:10px 13px;background:var(--panel);border:1px solid var(--border);border-radius:9px;font-size:12px;color:var(--text);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:8px;user-select:none;}
+.qopt:hover{border-color:var(--blue);background:#3a8dff0f;}
+.qopt.correct{border-color:var(--green)!important;background:#2ecc7118!important;color:var(--green)!important;}
+.qopt.wrong{border-color:var(--red)!important;background:#ff4f6a18!important;color:var(--red)!important;}
+.qopt.disabled{pointer-events:none;}
+.qkey{width:20px;height:20px;border-radius:5px;background:var(--border);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Mono',monospace;}
+.qconcept{margin-top:10px;font-size:10px;color:var(--muted);}
+.qconcept span{color:var(--blue);}
+
+/* BARS */
+.bar-wrap{display:flex;align-items:flex-end;gap:5px;height:72px;margin-top:12px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:3px;height:100%;}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 1.2s;}
+.bar-lbl{font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;}
+
+/* RINGS */
+.rings-wrap{display:flex;flex-wrap:wrap;justify-content:space-around;gap:12px;}
+
+/* FEED */
+.feed{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;}
+.feed::-webkit-scrollbar{width:3px;}
+.feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:9px;}
+.feed-item{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;background:var(--panel2);border-radius:9px;border-left:3px solid transparent;animation:fadin .4s ease;}
+@keyframes fadin{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+.fi-t{border-color:var(--teal);}
+.fi-b{border-color:var(--blue);}
+.fi-a{border-color:var(--amber);}
+.fi-r{border-color:var(--red);}
+.fi-g{border-color:var(--green);}
+.fi-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.fi-body{font-size:11px;color:var(--text);line-height:1.4;}
+.fi-body strong{color:var(--white);}
+.fi-time{font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+
+/* MISCONCEPTIONS */
+.misc-item{padding:9px 12px;background:var(--panel2);border-radius:9px;border:1px solid #f5a62328;font-size:11px;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.misc-icon{color:var(--amber);font-size:13px;}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.chip{padding:3px 9px;border-radius:16px;font-size:10px;border:1px solid;font-weight:600;}
+.chip-g{border-color:#2ecc7150;background:#2ecc7118;color:var(--green);}
+.chip-a{border-color:#f5a62350;background:#f5a62318;color:var(--amber);}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:#5aa6ff;box-shadow:0 0 16px #3a8dff50;}
+.btn-full{width:100%;}
+
+/* PROFILE ROWS */
+.prow{display:flex;justify-content:space-between;padding:9px 13px;background:var(--panel2);border-radius:8px;border:1px solid var(--border);margin-bottom:7px;}
+.prow-k{font-size:11px;color:var(--muted);}
+.prow-v{font-size:11px;color:var(--white);font-weight:600;}
+
+/* RESULT SCREEN */
+.result-box{text-align:center;padding:12px 0;}
+.result-title{font-size:13px;color:var(--muted);margin-bottom:16px;}
+.result-rings{display:flex;justify-content:center;gap:24px;margin-bottom:16px;}
+
+/* DB STATUS */
+.db-bar{background:#0a1520;border:1px solid var(--border);border-radius:9px;padding:7px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:11px;color:var(--muted);}
+.db-icon{font-size:14px;}
+.db-ok{color:var(--green);}
+.db-err{color:var(--red);}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.fadein{animation:fadeIn .5s ease;}
+
+/* SCROLLBAR GLOBAL */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:9px;}
+</style>
+</head>
+<body>
+<div class="dash" id="app">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="logo">🎓</div>
+      <div>
+        <h1>Autonomous Education Coach</h1>
+        <p>DevHack 2026 &nbsp;·&nbsp; Team INFINYX &nbsp;·&nbsp; Problem AIPS05</p>
+      </div>
+    </div>
+    <div class="badges">
+      <div class="badge b-teal"><span class="dot-pulse"></span> LMA Active</div>
+      <div class="badge b-blue"><span class="dot-pulse"></span> CAA Running</div>
+      <div class="badge b-amber">👤 Arjun Kumar</div>
+    </div>
+  </div>
+
+  <!-- DB Status -->
+  <div class="db-bar" id="db-status">
+    <span class="db-icon">🗄️</span>
+    <span id="db-msg">Connecting to IndexedDB...</span>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="g4" id="kpi-row">
+    <div class="sc"><div class="sl">Overall Mastery</div><div class="sv" id="kpi-overall" style="color:var(--teal)">—%</div><div class="ss s-up" id="kpi-trend">Calculating...</div></div>
+    <div class="sc"><div class="sl">Topics Mastered</div><div class="sv" id="kpi-mastered" style="color:var(--green)">—</div><div class="ss">Knowledge nodes unlocked</div></div>
+    <div class="sc"><div class="sl">Weak Areas</div><div class="sv" id="kpi-weak" style="color:var(--red)">—</div><div class="ss" id="kpi-misc-count">Misconceptions flagged</div></div>
+    <div class="sc"><div class="sl">Sessions Done</div><div class="sv" id="kpi-sessions" style="color:var(--amber)">—</div><div class="ss">Formative + summative</div></div>
+  </div>
+
+  <!-- Row 1: LMA + CAA -->
+  <div class="g2">
+
+    <!-- LMA Panel -->
+    <div class="panel fadein">
+      <div class="pt">Agent 1 — LMA</div>
+      <div class="ph">🧠 Learner Modeling Agent <span class="tag tg-t">LMA</span></div>
+      <div class="tabs">
+        <div class="tab act" onclick="lmaTab('graph',this)">Graph</div>
+        <div class="tab" onclick="lmaTab('scores',this)">Scores</div>
+        <div class="tab" onclick="lmaTab('profile',this)">Profile</div>
+      </div>
+
+      <!-- Graph Tab -->
+      <div id="tab-graph">
+        <div style="background:var(--panel2);border-radius:11px;border:1px solid var(--border);overflow:hidden;">
+          <svg id="kg-svg" viewBox="0 0 580 240" width="100%" style="display:block;"></svg>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:8px 14px;border-top:1px solid var(--border);">
+            <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#2ecc71;display:inline-block;"></span>Mastered ≥75%</span>
+            <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#f5a623;display:inline-block;"></span>Progressing</span>
+            <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#ff4f6a;display:inline-block;"></span>Weak &lt;50%</span>
+            <span style="font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#1a3050;display:inline-block;"></span>Not started</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scores Tab -->
+      <div id="tab-scores" style="display:none;">
+        <div id="score-bars"></div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div id="tab-profile" style="display:none;">
+        <div id="profile-content"></div>
+      </div>
+    </div>
+
+    <!-- CAA Panel -->
+    <div class="panel p-blue fadein">
+      <div class="pt">Agent 2 — CAA</div>
+      <div class="ph">📊 Continuous Assessment Agent <span class="tag tg-b">CAA</span></div>
+      <div style="margin-bottom:10px;font-size:11px;color:var(--muted);">
+        Topic: <strong id="q-topic-label" style="color:var(--blue);">—</strong>
+        &nbsp;·&nbsp; Q<span id="q-num">1</span>/<span id="q-total">0</span>
+      </div>
+      <div id="quiz-area"></div>
+      <!-- Session bar chart -->
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Session History</div>
+        <div class="bar-wrap" id="session-bars"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 2: Misconceptions + Mastery Rings + Feed -->
+  <div class="g3">
+
+    <!-- Misconceptions -->
+    <div class="panel p-amber fadein">
+      <div class="pt">LMA Output</div>
+      <div class="ph">⚠️ Detected Misconceptions</div>
+      <div id="misc-list"><div style="font-size:12px;color:var(--muted);">None detected yet.</div></div>
+    </div>
+
+    <!-- Mastery Rings -->
+    <div class="panel fadein">
+      <div class="pt">Performance</div>
+      <div class="ph">📈 Mastery Overview</div>
+      <div class="rings-wrap" id="rings-wrap"></div>
+    </div>
+
+    <!-- Agent Feed -->
+    <div class="panel fadein">
+      <div class="pt">System Log</div>
+      <div class="ph">🔄 Agent Communication Feed</div>
+      <div class="feed" id="feed"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATABASE — IndexedDB
+// ═══════════════════════════════════════════════════
+const DB_NAME = 'EduCoachDB';
+const DB_VER  = 1;
+let db = null;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('learner'))
+        d.createObjectStore('learner', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('sessions'))
+        d.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true });
+      if (!d.objectStoreNames.contains('misconceptions'))
+        d.createObjectStore('misconceptions', { keyPath: 'text' });
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror   = e => reject(e);
+  });
+}
+
+function dbPut(store, obj) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(obj);
+    req.onsuccess = () => res();
+    req.onerror   = e  => rej(e);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  APP DATA
+// ═══════════════════════════════════════════════════
+const TOPICS = {
+  'Python Basics':    { prereqs: [],                  score: 92 },
+  'Algebra':          { prereqs: [],                  score: 40 },
+  'Statistics':       { prereqs: ['Algebra'],         score: 65 },
+  'Data Structures':  { prereqs: ['Python Basics'],   score: 78 },
+  'Algorithms':       { prereqs: ['Data Structures'], score: 0  },
+  'Machine Learning': { prereqs: ['Statistics'],      score: 0  },
+  'Deep Learning':    { prereqs: ['Machine Learning'],score: 0  },
+};
+
+const QUESTIONS = {
+  'Python Basics': [
+    { q:'Output of print(type(3.14))?', opts:["<class 'int'>","<class 'float'>","<class 'str'>","<class 'double'>"], ans:1, concept:'Data Types' },
+    { q:'Which keyword defines a function in Python?', opts:['func','define','def','function'], ans:2, concept:'Functions' },
+    { q:'What does list.append(x) do?', opts:['Removes x','Adds at index 0','Adds at the end','Sorts the list'], ans:2, concept:'Lists' },
+  ],
+  'Algebra': [
+    { q:'Solve: 2x + 3 = 11', opts:['x = 3','x = 4','x = 5','x = 7'], ans:1, concept:'Linear Equations' },
+    { q:'Discriminant of ax² + bx + c = 0:', opts:['b² - 4ac','b + 4ac','a² - 4bc','b² + 4ac'], ans:0, concept:'Quadratics' },
+  ],
+  'Data Structures': [
+    { q:'Which structure follows LIFO order?', opts:['Queue','Stack','Tree','Graph'], ans:1, concept:'Stack' },
+    { q:'Time complexity of binary search?', opts:['O(n)','O(n²)','O(log n)','O(1)'], ans:2, concept:'Search' },
+    { q:'Left → Root → Right traversal:', opts:['Pre-order','Post-order','In-order','Level-order'], ans:2, concept:'Trees' },
+  ],
+  'Statistics': [
+    { q:'Standard deviation measures:', opts:['Central tendency','Spread of data','Skewness','Frequency'], ans:1, concept:'Spread' },
+    { q:'P(A|B) = P(A∩B) / P(B) is known as:', opts:['Bayes Theorem','Conditional Probability','Joint Probability','Total Probability'], ans:1, concept:'Probability' },
+  ],
+};
+
+const MISC_MAP = {
+  'Data Types':      'Confusing int and float types',
+  'Functions':       'Mixing definition vs call syntax',
+  'Lists':           'Off-by-one errors with append()',
+  'Linear Equations':'Misapplying inverse operations',
+  'Quadratics':      'Misremembering discriminant formula',
+  'Stack':           'Confusing LIFO with FIFO',
+  'Search':          'Applying O(log n) to unsorted arrays',
+  'Trees':           'Swapping in-order and pre-order',
+  'Spread':          'Confusing variance with std deviation',
+  'Probability':     'Confusing marginal and conditional probability',
+};
+
+// ── App State ──────────────────────────────────────
+let state = {
+  topics:    JSON.parse(JSON.stringify(TOPICS)),
+  sessions:  [],
+  misc:      [],
+  qTopic:    'Python Basics',
+  qIdx:      0,
+  chosen:    null,
+  done:      false,
+  results:   [],
+  overall:   57,
+  sessionCount: 4,
+};
+
+const gc = s => s >= 75 ? '#2ecc71' : s >= 50 ? '#f5a623' : s > 0 ? '#ff4f6a' : '#1a3050';
+const KEYS = ['A','B','C','D'];
+
+// ═══════════════════════════════════════════════════
+//  FEED
+// ═══════════════════════════════════════════════════
+const INITIAL_FEED = [
+  { icon:'🚀', html:'<strong>System online</strong> — LMA + CAA agents active', col:'fi-t', time:'00:00' },
+  { icon:'🧠', html:'<strong>LMA</strong> built knowledge graph for Arjun Kumar', col:'fi-t', time:'00:01' },
+  { icon:'📊', html:'<strong>CAA</strong> ready — awaiting first assessment', col:'fi-b', time:'00:02' },
+];
+
+function addFeed(icon, html, col) {
+  const el = document.getElementById('feed');
+  const item = document.createElement('div');
+  item.className = `feed-item ${col}`;
+  item.innerHTML = `<span class="fi-icon">${icon}</span><div><div class="fi-body">${html}</div><div class="fi-time">now</div></div>`;
+  el.prepend(item);
+  // keep max 20
+  while (el.children.length > 20) el.removeChild(el.lastChild);
+}
+
+function renderInitialFeed() {
+  const el = document.getElementById('feed');
+  el.innerHTML = INITIAL_FEED.map(f =>
+    `<div class="feed-item ${f.col}">
+      <span class="fi-icon">${f.icon}</span>
+      <div><div class="fi-body">${f.html}</div><div class="fi-time">${f.time}</div></div>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  KNOWLEDGE GRAPH SVG (LMA)
+// ═══════════════════════════════════════════════════
+const NODE_POS = {
+  'Python Basics':    {x:70,  y:165},
+  'Algebra':          {x:70,  y:72 },
+  'Statistics':       {x:215, y:72 },
+  'Data Structures':  {x:215, y:165},
+  'Algorithms':       {x:360, y:165},
+  'Machine Learning': {x:360, y:72 },
+  'Deep Learning':    {x:505, y:72 },
+};
+const EDGES = [
+  ['Python Basics','Data Structures'],
+  ['Data Structures','Algorithms'],
+  ['Algebra','Statistics'],
+  ['Statistics','Machine Learning'],
+  ['Machine Learning','Deep Learning'],
+];
+
+function renderGraph() {
+  const svg = document.getElementById('kg-svg');
+  let html = `<defs>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#2a4565"/>
+    </marker>
+  </defs>`;
+
+  EDGES.forEach(([a, b]) => {
+    const p1 = NODE_POS[a], p2 = NODE_POS[b];
+    html += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"
+      stroke="#2a4565" stroke-width="1.5" marker-end="url(#ar)"/>`;
+  });
+
+  Object.entries(state.topics).forEach(([name, data]) => {
+    const {x, y} = NODE_POS[name];
+    const color   = gc(data.score);
+    const mastered = data.score >= 75;
+    const words   = name.split(' ');
+
+    if (mastered) {
+      html += `<circle cx="${x}" cy="${y}" r="26" fill="none" stroke="${color}" stroke-width="1" opacity="0.2"/>`;
+    }
+    html += `<circle cx="${x}" cy="${y}" r="21" fill="${color}22" stroke="${color}" stroke-width="${mastered?2:1}"/>`;
+
+    words.forEach((w, i) => {
+      const dy = words.length === 1 ? y : (y - 5 + i * 10);
+      html += `<text x="${x}" y="${dy}" text-anchor="middle" font-size="7.5" font-weight="700"
+        fill="${color}" font-family="Space Mono,monospace">${w}</text>`;
+    });
+
+    if (data.score > 0) {
+      html += `<text x="${x}" y="${y+14}" text-anchor="middle" font-size="8.5"
+        fill="${color}" font-family="Space Mono,monospace" font-weight="700">${data.score}%</text>`;
+    }
+  });
+
+  svg.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+//  SCORE BARS (LMA)
+// ═══════════════════════════════════════════════════
+function renderScoreBars() {
+  const sorted = Object.entries(state.topics).sort((a,b) => b[1].score - a[1].score);
+  document.getElementById('score-bars').innerHTML = sorted.map(([name, data]) => `
+    <div class="pr-row">
+      <div class="pr-lbl">
+        <span>${name}</span>
+        <span style="color:${gc(data.score)};font-family:'Space Mono',monospace;font-size:11px;">
+          ${data.score > 0 ? data.score + '%' : '—'}
+        </span>
+      </div>
+      <div class="pr-trk">
+        <div class="pr-fill" style="width:${data.score}%;background:${gc(data.score)};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  PROFILE TAB (LMA)
+// ═══════════════════════════════════════════════════
+function renderProfile() {
+  const recommended = Object.entries(state.topics).filter(([name, d]) => {
+    if (d.score >= 75) return false;
+    return (TOPICS[name].prereqs || []).every(p => state.topics[p]?.score >= 75);
+  });
+
+  document.getElementById('profile-content').innerHTML = `
+    <div class="prow"><span class="prow-k">Learner</span><span class="prow-v">Arjun Kumar</span></div>
+    <div class="prow"><span class="prow-k">Learning Style</span><span class="prow-v">Visual</span></div>
+    <div class="prow"><span class="prow-k">Pace</span><span class="prow-v">${state.sessionCount > 5 ? 'Fast' : 'Medium'}</span></div>
+    <div class="prow"><span class="prow-k">Sessions Completed</span><span class="prow-v">${state.sessionCount}</span></div>
+    <div class="prow"><span class="prow-k">Preferred Time</span><span class="prow-v">Morning</span></div>
+    <div class="prow"><span class="prow-k">Language</span><span class="prow-v">English</span></div>
+    <div style="margin-top:10px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">
+        Recommended Next Topics
+      </div>
+      <div class="chips">
+        ${recommended.length
+          ? recommended.map(([n]) => `<span class="chip chip-g">${n}</span>`).join('')
+          : '<span style="font-size:11px;color:var(--muted);">Complete prerequisites first</span>'}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+//  MASTERY RINGS
+// ═══════════════════════════════════════════════════
+function ring(score, size, color, label) {
+  const r = (size - 10) / 2;
+  const c = 2 * Math.PI * r;
+  const d = (score / 100) * c;
+  return `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg width="${size}" height="${size}">
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#1a3050" stroke-width="7"/>
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+          stroke-dasharray="${d} ${c}" stroke-linecap="round"
+          transform="rotate(-90 ${size/2} ${size/2})"/>
+        <text x="${size/2}" y="${size/2+1}" text-anchor="middle" dominant-baseline="middle"
+          font-size="12" font-weight="700" fill="#e8f2ff" font-family="Space Mono,monospace">
+          ${score}%
+        </text>
+      </svg>
+      <div style="font-size:9px;color:var(--muted);text-align:center;">${label}</div>
+    </div>
+  `;
+}
+
+function renderRings() {
+  const el = document.getElementById('rings-wrap');
+  const active = Object.entries(state.topics).filter(([, d]) => d.score > 0);
+  el.innerHTML = active.map(([name, data]) =>
+    ring(data.score, 70, gc(data.score), name.split(' ')[0])
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  SESSION BARS (CAA)
+// ═══════════════════════════════════════════════════
+function renderSessionBars() {
+  const history = [72, 65, 80, 57, 88, state.overall];
+  const labels  = ['S1','S2','S3','S4','S5','Now'];
+  document.getElementById('session-bars').innerHTML = history.map((v, i) => `
+    <div class="bar-col">
+      <div class="bar-fill" style="height:${v}%;background:${v>=75?'#2ecc71':v>=50?'#f5a623':'#ff4f6a'};"></div>
+      <div class="bar-lbl">${labels[i]}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  MISCONCEPTIONS (LMA)
+// ═══════════════════════════════════════════════════
+function renderMisc() {
+  const el = document.getElementById('misc-list');
+  if (!state.misc.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);">None detected yet.</div>';
+  } else {
+    el.innerHTML = state.misc.map(m => `
+      <div class="misc-item">
+        <span class="misc-icon">⚠</span>${m}
+      </div>
+    `).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  KPI ROW
+// ═══════════════════════════════════════════════════
+function renderKPIs() {
+  const mastered = Object.values(state.topics).filter(t => t.score >= 75).length;
+  const weak     = Object.values(state.topics).filter(t => t.score > 0 && t.score < 50).length;
+  document.getElementById('kpi-overall').textContent   = state.overall + '%';
+  document.getElementById('kpi-mastered').textContent  = mastered + '/' + Object.keys(state.topics).length;
+  document.getElementById('kpi-weak').textContent      = weak;
+  document.getElementById('kpi-sessions').textContent  = state.sessionCount;
+  document.getElementById('kpi-misc-count').textContent = state.misc.length + ' misconceptions flagged';
+  document.getElementById('kpi-trend').textContent     = '↑ +' + Math.max(5, Math.round(state.overall * 0.15)) + '% this week';
+}
+
+// ═══════════════════════════════════════════════════
+//  QUIZ (CAA)
+// ═══════════════════════════════════════════════════
+function renderQuiz() {
+  const qs   = QUESTIONS[state.qTopic] || [];
+  const cq   = qs[state.qIdx];
+  document.getElementById('q-topic-label').textContent = state.qTopic;
+  document.getElementById('q-num').textContent         = Math.min(state.qIdx + 1, qs.length);
+  document.getElementById('q-total').textContent       = qs.length;
+
+  const area = document.getElementById('quiz-area');
+
+  if (state.done) {
+    const correct = state.results.filter(r => r.correct).length;
+    const total   = state.results.length;
+    const sc      = Math.round(correct / total * 100);
+    const wrong   = state.results.filter(r => !r.correct);
+    area.innerHTML = `
+      <div class="qcard result-box">
+        <div class="result-title">Assessment Complete</div>
+        <div class="result-rings">
+          ${ring(sc, 72, '#3a8dff', 'Score')}
+          ${ring(Math.round(wrong.length/total*100), 72, '#ff4f6a', 'Error Rate')}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">${correct}/${total} correct</div>
+        ${wrong.length ? `
+          <div style="text-align:left;margin-bottom:14px;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:5px;">Misconceptions flagged:</div>
+            <div class="chips">${wrong.map(r => `<span class="chip chip-a">${r.concept}</span>`).join('')}</div>
+          </div>` : ''}
+        <button class="btn btn-blue btn-full" onclick="nextQuiz()">Next Assessment →</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (!cq) {
+    area.innerHTML = `<div class="qcard"><div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">No questions available.</div></div>`;
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="qcard">
+      <div class="qtext">${cq.q}</div>
+      <div class="qopts">
+        ${cq.opts.map((opt, i) => `
+          <div class="qopt" id="opt-${i}" onclick="pickAnswer(${i})">
+            <span class="qkey">${KEYS[i]}</span>${opt}
+          </div>
+        `).join('')}
+      </div>
+      <div class="qconcept">Concept: <span>${cq.concept}</span></div>
+    </div>
+  `;
+}
+
+function pickAnswer(idx) {
+  if (state.chosen !== null) return;
+  state.chosen = idx;
+  const qs = QUESTIONS[state.qTopic];
+  const cq = qs[state.qIdx];
+  const ok = idx === cq.ans;
+
+  // Highlight options
+  document.querySelectorAll('.qopt').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === cq.ans) el.classList.add('correct');
+    else if (i === idx && !ok) el.classList.add('wrong');
+  });
+
+  const newResult = { correct: ok, concept: cq.concept };
+
+  setTimeout(() => {
+    state.results = [...state.results, newResult];
+    if (state.qIdx + 1 < qs.length) {
+      state.qIdx++;
+      state.chosen = null;
+      renderQuiz();
+    } else {
+      // Quiz complete
+      const allResults = state.results;
+      const sc = Math.round(allResults.filter(r => r.correct).length / allResults.length * 100);
+      const wrong = allResults.filter(r => !r.correct).map(r => r.concept);
+      const newMisc = wrong.filter(c => MISC_MAP[c]).map(c => MISC_MAP[c]);
+
+      state.topics[state.qTopic].score = sc;
+      state.misc = [...new Set([...state.misc, ...newMisc])].slice(0, 8);
+      state.sessionCount++;
+      state.overall = Math.min(99, Math.round((state.overall + sc) / 2));
+      state.done = true;
+
+      // Save to DB
+      saveSession({ topic: state.qTopic, score: sc, wrong, timestamp: new Date().toISOString() });
+      saveLearner();
+
+      // Feed events
+      addFeed('📊', `<strong>CAA</strong> — ${state.qTopic} assessment → <strong>${sc}%</strong>`, 'fi-b');
+      setTimeout(() => addFeed('🧠', `<strong>LMA</strong> knowledge graph updated — ${sc >= 75 ? '✅ Topic mastered!' : '⚠️ Needs review'}`, 'fi-t'), 600);
+      if (wrong.length) setTimeout(() => addFeed('⚠️', `<strong>LMA</strong> misconceptions: ${wrong.join(', ')}`, 'fi-a'), 1200);
+
+      renderAll();
+    }
+  }, 850);
+}
+
+function nextQuiz() {
+  const topics = Object.keys(QUESTIONS);
+  const next   = topics[(topics.indexOf(state.qTopic) + 1) % topics.length];
+  state.qTopic   = next;
+  state.qIdx     = 0;
+  state.chosen   = null;
+  state.done     = false;
+  state.results  = [];
+  addFeed('🎯', `<strong>CAA</strong> — new assessment started: <strong>${next}</strong>`, 'fi-b');
+  renderQuiz();
+}
+
+// ═══════════════════════════════════════════════════
+//  TAB SWITCHER (LMA)
+// ═══════════════════════════════════════════════════
+function lmaTab(name, el) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('act'));
+  el.classList.add('act');
+  ['graph','scores','profile'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = (t === name) ? '' : 'none';
+  });
+  if (name === 'scores') renderScoreBars();
+  if (name === 'profile') renderProfile();
+}
+
+// ═══════════════════════════════════════════════════
+//  DB PERSISTENCE
+// ═══════════════════════════════════════════════════
+async function saveLearner() {
+  try {
+    await dbPut('learner', {
+      id: 'arjun',
+      topics: state.topics,
+      misc: state.misc,
+      overall: state.overall,
+      sessionCount: state.sessionCount,
+      updatedAt: new Date().toISOString()
+    });
+  } catch(e) { console.warn('DB save error:', e); }
+}
+
+async function saveSession(session) {
+  try { await dbPut('sessions', session); } catch(e) { console.warn(e); }
+}
+
+async function saveMisc(text) {
+  try { await dbPut('misconceptions', { text, savedAt: new Date().toISOString() }); } catch(e) {}
+}
+
+async function loadFromDB() {
+  try {
+    const learner = await dbGet('learner', 'arjun');
+    if (learner) {
+      state.topics       = learner.topics;
+      state.misc         = learner.misc || [];
+      state.overall      = learner.overall || 57;
+      state.sessionCount = learner.sessionCount || 4;
+    }
+  } catch(e) { console.warn('DB load error:', e); }
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════
+function renderAll() {
+  renderGraph();
+  renderRings();
+  renderMisc();
+  renderKPIs();
+  renderQuiz();
+  renderSessionBars();
+}
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+(async function boot() {
+  const dbMsg = document.getElementById('db-msg');
+  try {
+    await initDB();
+    await loadFromDB();
+    dbMsg.innerHTML = '<span class="db-ok">✅ IndexedDB connected — all session data saved automatically</span>';
+    addFeed('🗄️', '<strong>IndexedDB</strong> connected — learner data will persist across sessions', 'fi-g');
+  } catch(e) {
+    dbMsg.innerHTML = '<span class="db-err">⚠️ IndexedDB unavailable — data saved in memory only</span>';
+  }
+
+  renderInitialFeed();
+  renderAll();
+
+  // Auto-save every 30 seconds
+  setInterval(saveLearner, 30000);
+})();
+</script>
+</body>
+</html>
